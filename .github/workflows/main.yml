@@ -17,45 +17,51 @@ jobs:
         uses: actions/checkout@v4
 
 
-      - name: Check package structure
+      - name: Check repository structure
         run: |
-          echo "Files:"
+          echo "Repository files:"
           find . -maxdepth 3 -type f | sort
 
 
-      - name: Resolve Swift Package
+      - name: Check Swift Package
         run: |
-          swift package resolve
+          swift package describe
+
+
+      - name: Show available schemes
+        run: |
+          xcodebuild -list
 
 
       - name: Build UniversalPerformanceKit
         run: |
           xcodebuild \
           -scheme UniversalPerformanceKit \
+          -destination 'generic/platform=iOS' \
           -sdk iphoneos \
           -configuration Release \
           BUILD_LIBRARY_FOR_DISTRIBUTION=YES
 
 
-      - name: Create output directory
+      - name: Create output folder
         run: |
           mkdir -p output
 
 
-      - name: Locate Framework
+      - name: Find Framework
         run: |
           find ~/Library/Developer/Xcode/DerivedData \
           -name "UniversalPerformanceKit.framework" \
           -exec cp -R {} output/ \; || true
 
 
-      - name: Verify output
+      - name: Check build output
         run: |
-          echo "Build output:"
+          echo "Output:"
           ls -R output
 
 
-      - name: Upload Framework Artifact
+      - name: Upload Framework
         uses: actions/upload-artifact@v4
         with:
           name: UniversalPerformanceKit-framework
