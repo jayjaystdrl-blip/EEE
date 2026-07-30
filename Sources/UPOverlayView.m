@@ -1,10 +1,13 @@
 #import "UPOverlayView.h"
 #import "UPFPSMonitor.h"
 #import "UPMemoryMonitor.h"
+#import <QuartzCore/QuartzCore.h>
+
 
 @interface UPOverlayView ()
 
-@property UILabel *label;
+@property(nonatomic,strong) UILabel *label;
+@property(nonatomic,strong) CADisplayLink *displayLink;
 
 @end
 
@@ -14,12 +17,12 @@
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
-    self=[super initWithFrame:frame];
+    self = [super initWithFrame:frame];
 
     if(self)
     {
         self.backgroundColor =
-        [UIColor colorWithWhite:0 alpha:.65];
+        [UIColor colorWithWhite:0 alpha:0.75];
 
 
         self.layer.cornerRadius = 25;
@@ -38,6 +41,9 @@
         UIColor.whiteColor;
 
 
+        self.label.numberOfLines = 2;
+
+
         self.label.font =
         [UIFont boldSystemFontOfSize:13];
 
@@ -45,13 +51,13 @@
         [self addSubview:self.label];
 
 
-        CADisplayLink *link =
+        self.displayLink =
         [CADisplayLink displayLinkWithTarget:self
-                                     selector:@selector(update)];
+                                     selector:@selector(updateHUD)];
 
 
-        [link addToRunLoop:
-         NSRunLoop.mainRunLoop
+        [self.displayLink
+         addToRunLoop:NSRunLoop.mainRunLoop
          forMode:NSRunLoopCommonModes];
     }
 
@@ -59,7 +65,7 @@
 }
 
 
-- (void)update
+- (void)updateHUD
 {
     self.label.text =
     [NSString stringWithFormat:
@@ -67,5 +73,6 @@
      (long)[UPFPSMonitor fps],
      [UPMemoryMonitor memory]];
 }
+
 
 @end
