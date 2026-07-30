@@ -21,7 +21,7 @@ let package = Package(
     targets: [
         .target(
             name: "UniversalPerformanceKit",
-            path: "Sources/UniversalPerformanceKit",
+            path: "Source",
             publicHeadersPath: "include"
         )
     ]
