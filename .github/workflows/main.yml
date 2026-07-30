@@ -1,0 +1,62 @@
+name: Build UniversalPerformanceKit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build iOS Library
+    runs-on: macos-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Check package structure
+        run: |
+          echo "Files:"
+          find . -maxdepth 3 -type f | sort
+
+
+      - name: Resolve Swift Package
+        run: |
+          swift package resolve
+
+
+      - name: Build UniversalPerformanceKit
+        run: |
+          xcodebuild \
+          -scheme UniversalPerformanceKit \
+          -sdk iphoneos \
+          -configuration Release \
+          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+
+      - name: Create output directory
+        run: |
+          mkdir -p output
+
+
+      - name: Locate Framework
+        run: |
+          find ~/Library/Developer/Xcode/DerivedData \
+          -name "UniversalPerformanceKit.framework" \
+          -exec cp -R {} output/ \; || true
+
+
+      - name: Verify output
+        run: |
+          echo "Build output:"
+          ls -R output
+
+
+      - name: Upload Framework Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UniversalPerformanceKit-framework
+          path: output
