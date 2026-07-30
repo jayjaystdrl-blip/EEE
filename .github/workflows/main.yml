@@ -1,4 +1,4 @@
-name: Build UniversalPerformanceKit
+name: Build dylib
 
 on:
   workflow_dispatch:
@@ -7,62 +7,30 @@ on:
       - main
 
 jobs:
+
   build:
-    name: Build iOS Library
+
     runs-on: macos-latest
 
     steps:
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
 
-      - name: Check repository structure
-        run: |
-          echo "Repository files:"
-          find . -maxdepth 3 -type f | sort
+    - name: Build dylib
+      run: |
+        make
 
 
-      - name: Check Swift Package
-        run: |
-          swift package describe
+    - name: Check output
+      run: |
+        file UniversalPerformance.dylib
+        ls -lh UniversalPerformance.dylib
 
 
-      - name: Show available schemes
-        run: |
-          xcodebuild -list
-
-
-      - name: Build UniversalPerformanceKit
-        run: |
-          xcodebuild \
-          -scheme UniversalPerformanceKit \
-          -destination 'generic/platform=iOS' \
-          -sdk iphoneos \
-          -configuration Release \
-          BUILD_LIBRARY_FOR_DISTRIBUTION=YES
-
-
-      - name: Create output folder
-        run: |
-          mkdir -p output
-
-
-      - name: Find Framework
-        run: |
-          find ~/Library/Developer/Xcode/DerivedData \
-          -name "UniversalPerformanceKit.framework" \
-          -exec cp -R {} output/ \; || true
-
-
-      - name: Check build output
-        run: |
-          echo "Output:"
-          ls -R output
-
-
-      - name: Upload Framework
-        uses: actions/upload-artifact@v4
-        with:
-          name: UniversalPerformanceKit-framework
-          path: output
+    - name: Upload dylib
+      uses: actions/upload-artifact@v4
+      with:
+        name: UniversalPerformance-dylib
+        path: UniversalPerformance.dylib
