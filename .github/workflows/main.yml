@@ -1,4 +1,4 @@
-name: Build dylib
+name: Build UniversalPerformance dylib
 
 on:
   workflow_dispatch:
@@ -23,14 +23,29 @@ jobs:
         make
 
 
-    - name: Check output
+    - name: Sign dylib
       run: |
-        file UniversalPerformance.dylib
-        ls -lh UniversalPerformance.dylib
+        codesign \
+        --force \
+        --sign - \
+        --timestamp=none \
+        UniversalPerformance.dylib
 
 
-    - name: Upload dylib
+    - name: Verify signature
+      run: |
+        codesign --verify --verbose UniversalPerformance.dylib
+        codesign -dv UniversalPerformance.dylib
+
+
+    - name: Package
+      run: |
+        mkdir output
+        cp UniversalPerformance.dylib output/
+
+
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: UniversalPerformance-dylib
-        path: UniversalPerformance.dylib
+        name: UniversalPerformance-signed
+        path: output
